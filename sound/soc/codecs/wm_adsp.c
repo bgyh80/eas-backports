@@ -2163,6 +2163,19 @@ static int wm_adsp2_ena(struct wm_adsp *dsp)
 			msleep(1);
 		}
 
+		/* Wait for the RAM to start, should be near instantaneous */
+		for (count = 0; count < 10; ++count) {
+			ret = regmap_read(dsp->regmap, dsp->base + ADSP2_STATUS1,
+					  &val);
+			if (ret != 0)
+				return ret;
+
+			if (val & ADSP2_RAM_RDY)
+				break;
+
+			msleep(1);
+		}
+
 		if (!(val & ADSP2_RAM_RDY)) {
 			adsp_err(dsp, "Failed to start DSP RAM\n");
 			return -EBUSY;
