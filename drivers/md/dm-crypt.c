@@ -1665,6 +1665,13 @@ static int crypt_ctr(struct dm_target *ti, unsigned int argc, char **argv)
 			goto bad;
 		}
 
+		cc->req_pool = mempool_create_kmalloc_pool(MIN_IOS, cc->dmreq_start +
+				sizeof(struct dm_crypt_request) + iv_size_padding + cc->iv_size);
+		if (!cc->req_pool) {
+			ti->error = "Cannot allocate crypt request mempool";
+			goto bad;
+		}
+
 		cc->page_pool = mempool_create_page_pool(MIN_POOL_PAGES, 0);
 		if (!cc->page_pool) {
 			ti->error = "Cannot allocate page mempool";
