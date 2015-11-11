@@ -58,6 +58,8 @@
 #define MCT_L_TCON_INT_START		(1 << 1)
 #define MCT_L_TCON_TIMER_START		(1 << 0)
 
+#define TICK_BASE_CNT	1
+
 enum {
 	MCT_INT_SPI,
 	MCT_INT_PPI
@@ -437,7 +439,6 @@ static int __cpuinit exynos4_local_timer_setup(struct clock_event_device *evt)
 	evt->set_mode = exynos4_tick_set_mode;
 	evt->features = CLOCK_EVT_FEAT_PERIODIC | CLOCK_EVT_FEAT_ONESHOT;
 	evt->rating = 450;
-	tick_base_cnt = 0;
 
 	if (!soc_is_exynos5433()) {
 		tick_base_cnt = 1;
@@ -454,8 +455,7 @@ static int __cpuinit exynos4_local_timer_setup(struct clock_event_device *evt)
 	} else {
 		enable_percpu_irq(mct_irqs[MCT_L0_IRQ], 0);
 	}
-
-	clockevents_config_and_register(evt, clk_rate / (tick_base_cnt + 1),
+	clockevents_config_and_register(evt, clk_rate / (TICK_BASE_CNT + 1),
 					0xf, 0x7fffffff);
 
 	return 0;
